@@ -7,15 +7,16 @@ services:
   - name: web
     image: ghcr.io/markmorcos/stream-web
     context: web
+    replicas: 2
     port: 80
     ingress:
       host: watch.morcos.tech
-      path: /?(.*)
-      pathType: ImplementationSpecific
+      path: /
+      pathType: Prefix
   - name: stream
     image: ghcr.io/markmorcos/stream-service
     context: stream-service
-    replicas: 5
+    replicas: 3
     port: 3000
     env:
       - name: REDIS_HOST
@@ -52,12 +53,12 @@ services:
             key: MINIO_SECRET_KEY
     ingress:
       host: watch.morcos.tech
-      path: /stream/api/?(.*)
-      pathType: ImplementationSpecific
+      path: /api/stream
+      pathType: Prefix
   - name: transcode
     context: transcode-service
     image: ghcr.io/markmorcos/transcode-service
-    replicas: 10
+    replicas: 5
     env:
       - name: REDIS_HOST
         valueFrom:
@@ -94,7 +95,7 @@ services:
   - name: upload
     context: upload-service
     image: ghcr.io/markmorcos/upload-service
-    replicas: 5
+    replicas: 3
     port: 3000
     env:
       - name: REDIS_HOST
@@ -131,12 +132,12 @@ services:
             key: MINIO_SECRET_KEY
     ingress:
       host: watch.morcos.tech
-      path: /upload/?(.*)
-      pathType: ImplementationSpecific
+      path: /api/upload
+      pathType: Prefix
   - name: videos
     context: videos-service
     image: ghcr.io/markmorcos/videos-service
-    replicas: 5
+    replicas: 2
     port: 3000
     env:
       - name: REDIS_HOST
@@ -173,5 +174,5 @@ services:
             key: MINIO_SECRET_KEY
     ingress:
       host: watch.morcos.tech
-      path: /videos/?(.*)
-      pathType: ImplementationSpecific
+      path: /api/videos
+      pathType: Prefix

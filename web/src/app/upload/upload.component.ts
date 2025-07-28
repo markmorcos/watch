@@ -45,7 +45,7 @@ export class UploadComponent {
       formData.append('total', totalChunks.toString());
 
       this.http
-        .post('https://watch.morcos.tech/upload/chunk', formData)
+        .post('https://watch.morcos.tech/api/upload/upload/chunk', formData)
         .subscribe({
           next: () => this.progress.set(this.progress() + 1),
           error: (err) => console.error('Upload failed', err),

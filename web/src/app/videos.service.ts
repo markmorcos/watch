@@ -17,22 +17,24 @@ export class VideosService {
 
   getVideos() {
     this.loading.set(true);
-    return this.http.get<VideoEntry[]>('https://watch.morcos.tech/videos').pipe(
-      tap({
-        next: (videos) => {
-          this.videos.set(videos);
-        },
-        finalize: () => {
-          this.loading.set(false);
-        },
-      })
-    );
+    return this.http
+      .get<VideoEntry[]>('https://watch.morcos.tech/api/videos/videos')
+      .pipe(
+        tap({
+          next: (videos) => {
+            this.videos.set(videos);
+          },
+          finalize: () => {
+            this.loading.set(false);
+          },
+        })
+      );
   }
 
   getVideoUrl(fileId: string, res: string) {
     this.loading.set(true);
     return this.http
-      .get(`https://watch.morcos.tech/videos/${fileId}/${res}`, {
+      .get(`https://watch.morcos.tech/api/videos/videos/${fileId}/${res}`, {
         responseType: 'text' as const,
       })
       .pipe(
@@ -48,6 +50,6 @@ export class VideosService {
   }
 
   getStreamUrl(fileId: string, res: string) {
-    return `https://watch.morcos.tech/stream/${fileId}/${res}`;
+    return `https://watch.morcos.tech/api/stream/stream/${fileId}/${res}`;
   }
 }
