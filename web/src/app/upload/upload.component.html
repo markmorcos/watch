@@ -1,5 +1,9 @@
-<input type="file" (change)="onFileSelected($event)" />
-<button (click)="upload()">Upload</button>
+<input type="file" id="fileInput" (change)="onFileSelected($event)" />
+<label for="fileInput">Choose File</label>
+@if (selectedFile()) {
+<p class="selected-file">Selected: {{ selectedFile()?.name }}</p>
+}
+<button (click)="upload()" [disabled]="!selectedFile()">Upload</button>
 @if (total()) {
 <p>Progress: {{ (progress() / total()) * 100 }}%</p>
 }
