@@ -1,0 +1,5 @@
+<input type="file" (change)="onFileSelected($event)" />
+<button (click)="upload()">Upload</button>
+@if (total()) {
+<p>Progress: {{ (progress() / total()) * 100 }}%</p>
+}

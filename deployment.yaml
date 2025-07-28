@@ -1,0 +1,177 @@
+version: 0.4.6
+
+namespace: watch
+project: watch
+
+services:
+  - name: web
+    image: ghcr.io/markmorcos/stream-web
+    context: web
+    port: 80
+    ingress:
+      host: watch.morcos.tech
+      path: /?(.*)
+      pathType: ImplementationSpecific
+  - name: stream
+    image: ghcr.io/markmorcos/stream-service
+    context: stream-service
+    replicas: 5
+    port: 3000
+    env:
+      - name: REDIS_HOST
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_HOST
+      - name: REDIS_PORT
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PORT
+      - name: REDIS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_USERNAME
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PASSWORD
+      - name: MINIO_ENDPOINT
+        value: cdn.morcos.tech
+      - name: MINIO_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_ACCESS_KEY
+      - name: MINIO_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_SECRET_KEY
+    ingress:
+      host: watch.morcos.tech
+      path: /stream/api/?(.*)
+      pathType: ImplementationSpecific
+  - name: transcode
+    context: transcode-service
+    image: ghcr.io/markmorcos/transcode-service
+    replicas: 10
+    env:
+      - name: REDIS_HOST
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_HOST
+      - name: REDIS_PORT
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PORT
+      - name: REDIS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_USERNAME
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PASSWORD
+      - name: MINIO_ENDPOINT
+        value: cdn.morcos.tech
+      - name: MINIO_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_ACCESS_KEY
+      - name: MINIO_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_SECRET_KEY
+  - name: upload
+    context: upload-service
+    image: ghcr.io/markmorcos/upload-service
+    replicas: 5
+    port: 3000
+    env:
+      - name: REDIS_HOST
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_HOST
+      - name: REDIS_PORT
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PORT
+      - name: REDIS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_USERNAME
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PASSWORD
+      - name: MINIO_ENDPOINT
+        value: cdn.morcos.tech
+      - name: MINIO_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_ACCESS_KEY
+      - name: MINIO_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_SECRET_KEY
+    ingress:
+      host: watch.morcos.tech
+      path: /upload/?(.*)
+      pathType: ImplementationSpecific
+  - name: videos
+    context: videos-service
+    image: ghcr.io/markmorcos/videos-service
+    replicas: 5
+    port: 3000
+    env:
+      - name: REDIS_HOST
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_HOST
+      - name: REDIS_PORT
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PORT
+      - name: REDIS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_USERNAME
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis-secret
+            key: REDIS_PASSWORD
+      - name: MINIO_ENDPOINT
+        value: cdn.morcos.tech
+      - name: MINIO_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_ACCESS_KEY
+      - name: MINIO_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio-secret
+            key: MINIO_SECRET_KEY
+    ingress:
+      host: watch.morcos.tech
+      path: /videos/?(.*)
+      pathType: ImplementationSpecific

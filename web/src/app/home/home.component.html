@@ -1,0 +1,13 @@
+@if (loading()) {
+<p>Loading...</p>
+} @else if (videos().length === 0) {
+<p>No videos found.</p>
+} @else {
+<ul>
+  @for (video of videos(); track video.id) {
+  <li>
+    <a [routerLink]="['/watch', video.id]">{{ video.id }}</a>
+  </li>
+  }
+</ul>
+}
