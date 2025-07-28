@@ -9,7 +9,7 @@ import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VideosService } from './videos.service';
 
-@Controller()
+@Controller('upload')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
