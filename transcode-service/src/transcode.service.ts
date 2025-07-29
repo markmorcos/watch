@@ -19,7 +19,7 @@ export class TranscodeService {
         if (!job) continue;
 
         const { fileId, res } = job;
-        console.log(`🔁 Transcoding ${fileId}...`);
+        console.log(`🔁 Transcoding ${fileId} at ${res}...`);
 
         const tempDir = `/tmp/transcode/${fileId}/${res}`;
         await fs.mkdir(tempDir, { recursive: true });

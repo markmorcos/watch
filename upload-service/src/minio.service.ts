@@ -11,7 +11,15 @@ export class MinioService {
     const accessKey = this.config.getOrThrow<string>('MINIO_ACCESS_KEY');
     const secretKey = this.config.getOrThrow<string>('MINIO_SECRET_KEY');
 
-    this.client = new Client({ endPoint, accessKey, secretKey });
+    this.client = new Client({
+      endPoint,
+      port: 443,
+      useSSL: true,
+      accessKey,
+      secretKey,
+      region: 'eu-central-1',
+      pathStyle: true,
+    });
   }
 
   async uploadVideo(bucket: string, objectName: string, filePath: string) {
