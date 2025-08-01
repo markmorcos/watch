@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Client } from 'minio';
-import { pipeline } from 'stream/promises';
+import { BucketItem, Client } from 'minio';
 
 @Injectable()
 export class MinioService {
@@ -24,13 +23,33 @@ export class MinioService {
     });
   }
 
-  async downloadFile(bucket: string, objectName: string, localPath: string) {
-    const stream = await this.client.getObject(bucket, objectName);
-    await pipeline(stream, fs.createWriteStream(localPath));
+  async listChunks(bucket: string, prefix: string) {
+    const stream = this.client.listObjects(bucket, prefix);
+    const chunks: string[] = [];
+    stream.on('data', (obj) => obj.name && chunks.push(obj.name));
+    await new Promise((resolve) => stream.on('end', resolve));
+    return chunks;
+  }
+
+  getChunkStream(bucket: string, objectName: string) {
+    return this.client.getObject(bucket, objectName);
   }
 
   uploadFile(bucket: string, objectName: string, localPath: string) {
     const fileStream = fs.createReadStream(localPath);
     return this.client.putObject(bucket, objectName, fileStream);
+  }
+
+  async deleteFolder(bucket: string, prefix: string) {
+    const objectsToDelete: string[] = [];
+
+    const stream = this.client.listObjectsV2(bucket, prefix, true);
+    for await (const obj of stream as AsyncIterable<BucketItem>) {
+      if (obj.name) objectsToDelete.push(obj.name);
+    }
+
+    if (objectsToDelete.length > 0) {
+      await this.client.removeObjects(bucket, objectsToDelete);
+    }
   }
 }

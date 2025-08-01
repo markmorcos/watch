@@ -15,7 +15,7 @@ export class RedisService {
     this.client = new Redis({ host, port, username, password });
   }
 
-  async getJob(): Promise<{ fileId: string; res: string } | null> {
+  async getJob(): Promise<{ fileId: string; resolution: string } | null> {
     const job = await this.client.blpop('stream:transcode', 0);
 
     if (!job) return null;
@@ -23,8 +23,11 @@ export class RedisService {
     const [, data] = job;
     if (!data) return null;
 
-    const { fileId, res } = JSON.parse(data) as { fileId: string; res: string };
+    const { fileId, resolution } = JSON.parse(data) as {
+      fileId: string;
+      resolution: string;
+    };
 
-    return { fileId, res };
+    return { fileId, resolution };
   }
 }

@@ -22,6 +22,10 @@ export class MinioService {
     });
   }
 
+  async uploadChunk(bucket: string, objectName: string, buffer: Buffer) {
+    await this.client.putObject(bucket, objectName, buffer);
+  }
+
   async uploadVideo(bucket: string, objectName: string, filePath: string) {
     await this.client.fPutObject(bucket, objectName, filePath);
   }

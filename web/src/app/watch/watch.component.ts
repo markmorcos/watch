@@ -26,7 +26,7 @@ export class WatchComponent {
   ngAfterViewInit() {
     const fileId = this.route.snapshot.params['fileId'];
     const video = this.videoElement.nativeElement;
-    const url = this.videosService.getStreamUrl(fileId, '720p');
+    const url = this.videosService.getStreamUrl(fileId, '360p');
     if (Hls.isSupported()) {
       const hls = new Hls();
       hls.loadSource(url);

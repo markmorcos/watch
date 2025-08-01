@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 
+import { environment } from '../environments/environment';
+
 export interface VideoEntry {
   id: string;
   title: string;
@@ -18,7 +20,7 @@ export class VideosService {
   getVideos() {
     this.loading.set(true);
     return this.http
-      .get<VideoEntry[]>('https://watch.morcos.tech/api/videos')
+      .get<VideoEntry[]>(`${environment.videosApiBaseUrl}/api/videos`)
       .pipe(
         tap({
           next: (videos) => {
@@ -34,7 +36,7 @@ export class VideosService {
   getVideoUrl(fileId: string, res: string) {
     this.loading.set(true);
     return this.http
-      .get(`https://watch.morcos.tech/api/videos/${fileId}/${res}`, {
+      .get(`${environment.videosApiBaseUrl}/api/videos/${fileId}/${res}`, {
         responseType: 'text' as const,
       })
       .pipe(
@@ -50,6 +52,6 @@ export class VideosService {
   }
 
   getStreamUrl(fileId: string, res: string) {
-    return `https://watch.morcos.tech/api/stream/${fileId}/${res}`;
+    return `${environment.streamApiBaseUrl}/api/stream/${fileId}/${res}`;
   }
 }

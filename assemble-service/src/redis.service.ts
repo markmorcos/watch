@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
-interface AssembleJob {
-  type: 'assemble';
+interface TranscodeJob {
+  type: 'transcode';
   fileId: string;
+  resolution: string;
 }
 
 @Injectable()
@@ -20,32 +21,33 @@ export class RedisService {
     this.client = new Redis({ host, port, username, password });
   }
 
-  async addChunk(fileId: string, index: number) {
-    await this.client.sadd(`stream:upload:${fileId}:receivedChunks`, index);
+  async getJob(): Promise<{ fileId: string } | null> {
+    const job = await this.client.blpop('stream:assemble', 0);
+
+    if (!job) return null;
+
+    const [, data] = job;
+    if (!data) return null;
+
+    const { fileId } = JSON.parse(data) as { fileId: string; res: string };
+
+    return { fileId };
   }
 
-  async getReceivedChunkCount(fileId: string): Promise<number> {
-    return this.client.scard(`stream:upload:${fileId}:receivedChunks`);
-  }
-
-  async clearChunks(fileId: string) {
-    await this.client.del(`stream:upload:${fileId}:receivedChunks`);
+  pushJob(payload: TranscodeJob) {
+    return this.client.rpush('stream:transcode', JSON.stringify(payload));
   }
 
   async tryLock(fileId: string): Promise<boolean> {
-    const lockKey = `stream:upload:${fileId}:lock`;
+    const lockKey = `stream:assemble:${fileId}:lock`;
     const result = await this.client.set(lockKey, '1', 'EX', 120, 'NX');
     return result === 'OK';
   }
 
   async releaseLock(fileId: string) {
-    const lockKey = `stream:upload:${fileId}:lock`;
+    const lockKey = `stream:assemble:${fileId}:lock`;
     if (await this.client.exists(lockKey)) {
       await this.client.del(lockKey);
     }
-  }
-
-  async pushJob(payload: AssembleJob) {
-    await this.client.rpush('stream:assemble', JSON.stringify(payload));
   }
 }

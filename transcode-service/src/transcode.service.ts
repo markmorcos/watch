@@ -14,57 +14,65 @@ export class TranscodeService {
 
   async run() {
     while (true) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       try {
         const job = await this.redis.getJob();
         if (!job) continue;
 
-        const { fileId, res } = job;
-        console.log(`🔁 Transcoding ${fileId} at ${res}...`);
+        const { fileId, resolution } = job;
+        console.log(`🔁 Transcoding ${fileId} at ${resolution}...`);
 
-        const tempDir = `/tmp/transcode/${fileId}/${res}`;
+        const tempDir = `/tmp/transcode/${fileId}/${resolution}`;
         await fs.mkdir(tempDir, { recursive: true });
 
         const inputPath = join(tempDir, 'original.mp4');
-        await this.minio.downloadFile('stream', `${fileId}.mp4`, inputPath);
 
-        const promises: Promise<any>[] = [];
+        try {
+          await this.minio.downloadFile(
+            'stream',
+            `${fileId}/video.mp4`,
+            inputPath,
+          );
+        } catch (err) {
+          console.error(`❌ Failed to download video for ${fileId}:`, err);
+          continue;
+        }
 
-        promises.push(transcodeToResolution(inputPath, tempDir, res));
+        await transcodeToResolution(inputPath, tempDir, resolution);
 
         const variantPath = join(tempDir, 'video.mp4');
-        promises.push(
+        const streamPath = join(tempDir, 'playlist.m3u8');
+        const files = await fs.readdir(tempDir);
+
+        const uploads = [
           this.minio.uploadFile(
             'stream',
-            `${fileId}/${res}/video.mp4`,
+            `${fileId}/${resolution}/video.mp4`,
             variantPath,
           ),
-        );
-
-        const streamPath = join(tempDir, 'playlist.m3u8');
-        promises.push(
           this.minio.uploadFile(
             'stream',
-            `${fileId}/${res}/playlist.m3u8`,
+            `${fileId}/${resolution}/playlist.m3u8`,
             streamPath,
           ),
-        );
+        ];
 
-        const parts = await fs.readdir(tempDir);
-        for (const part of parts) {
+        for (const part of files) {
           if (part.endsWith('.ts')) {
-            promises.push(
+            uploads.push(
               this.minio.uploadFile(
                 'stream',
-                `${fileId}/${res}/${part}`,
+                `${fileId}/${resolution}/${part}`,
                 join(tempDir, part),
               ),
             );
           }
         }
 
-        await Promise.all(promises);
+        await Promise.all(uploads);
 
-        console.log(`✅ Transcoded ${fileId}`);
+        console.log(`✅ Transcoded ${fileId} at ${resolution}`);
         await fs.rm(tempDir, { recursive: true, force: true });
       } catch (err) {
         console.error('❌ Transcode error:', err);

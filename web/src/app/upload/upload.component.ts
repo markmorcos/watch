@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 
+import { environment } from '../../environments/environment';
+
 @Component({
   selector: 'app-upload',
   standalone: true,
@@ -45,7 +47,7 @@ export class UploadComponent {
       formData.append('total', totalChunks.toString());
 
       this.http
-        .post('https://watch.morcos.tech/api/upload/chunk', formData)
+        .post(`${environment.uploadApiBaseUrl}/api/upload/chunk`, formData)
         .subscribe({
           next: () => this.progress.set(this.progress() + 1),
           error: (err) => console.error('Upload failed', err),
