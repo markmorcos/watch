@@ -33,25 +33,11 @@ export class VideosService {
       );
   }
 
-  getVideoUrl(fileId: string, res: string) {
-    this.loading.set(true);
-    return this.http
-      .get(`${environment.videosApiBaseUrl}/api/videos/${fileId}/${res}`, {
-        responseType: 'text' as const,
-      })
-      .pipe(
-        tap({
-          next: (url) => {
-            return url;
-          },
-          finalize: () => {
-            this.loading.set(false);
-          },
-        })
-      );
-  }
-
   getStreamUrl(fileId: string, res: string) {
     return `${environment.streamApiBaseUrl}/api/stream/${fileId}/${res}`;
+  }
+
+  getVideoUrl(fileId: string, res: string) {
+    return `${environment.streamApiBaseUrl}/api/stream/mp4/${fileId}/${res}`;
   }
 }

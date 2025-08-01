@@ -28,4 +28,8 @@ export class StreamService {
 
     return signedLines.join('\n');
   }
+
+  getVideoUrl(fileId: string, res: string) {
+    return this.minio.getUrl('stream', `${fileId}/${res}/video.mp4`);
+  }
 }

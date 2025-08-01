@@ -18,4 +18,16 @@ export class StreamController {
     response.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
     return response.send(playlist);
   }
+
+  @Get('/mp4/:fileId/:res')
+  async getVideo(
+    @Param('fileId') fileId: string,
+    @Param('res') res: string,
+    @Res() response: Response,
+  ) {
+    const videoUrl = await this.streamService.getVideoUrl(fileId, res);
+
+    response.setHeader('Content-Type', 'video/mp4');
+    response.redirect(301, videoUrl);
+  }
 }

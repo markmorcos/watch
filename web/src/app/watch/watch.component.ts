@@ -33,6 +33,9 @@ export class WatchComponent {
       hls.attachMedia(video);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
+    } else {
+      const url = this.videosService.getVideoUrl(fileId, '360p');
+      video.src = url;
     }
   }
 }
