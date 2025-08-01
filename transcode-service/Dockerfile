@@ -12,6 +12,9 @@ RUN npm run build
 
 FROM node:alpine AS final
 WORKDIR /app
+
+RUN apk add --no-cache ffmpeg
+
 COPY package*.json ./
 COPY --from=build /app/dist ./dist
 COPY --from=deps /app/node_modules ./node_modules
