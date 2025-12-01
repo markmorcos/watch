@@ -7,7 +7,6 @@ services:
   - name: web
     image: ghcr.io/markmorcos/stream-web
     context: web
-    replicas: 2
     port: 80
     ingress:
       host: watch.morcos.tech
@@ -16,7 +15,6 @@ services:
   - name: stream
     image: ghcr.io/markmorcos/stream-service
     context: stream-service
-    replicas: 3
     port: 3000
     env:
       - name: REDIS_HOST
@@ -58,7 +56,6 @@ services:
   - name: transcode
     context: transcode-service
     image: ghcr.io/markmorcos/transcode-service
-    replicas: 5
     env:
       - name: REDIS_HOST
         valueFrom:
@@ -95,7 +92,6 @@ services:
   - name: upload
     context: upload-service
     image: ghcr.io/markmorcos/upload-service
-    replicas: 3
     port: 3000
     env:
       - name: REDIS_HOST
@@ -137,7 +133,6 @@ services:
   - name: videos
     context: videos-service
     image: ghcr.io/markmorcos/videos-service
-    replicas: 2
     port: 3000
     env:
       - name: REDIS_HOST
@@ -179,7 +174,6 @@ services:
   - name: assemble
     context: assemble-service
     image: ghcr.io/markmorcos/assemble-service
-    replicas: 5
     env:
       - name: REDIS_HOST
         valueFrom:
